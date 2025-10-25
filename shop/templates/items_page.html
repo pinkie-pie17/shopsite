@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Items</title>
+</head>
+<body>
+    <h2>Items List</h2>
+
+    {% if user.is_authenticated %}
+        <p>Logged in as: {{ user.username }} ({{ role }})</p>
+        <p><a href="/accounts/logout/">Logout</a></p>
+    {% else %}
+        <p>You are not logged in. <a href="/accounts/login/">Login</a></p>
+    {% endif %}
+
+    <ul>
+        {% for item in items %}
+            <li>
+                {{ item.name }} — {{ item.price }}$
+                {% if user.is_authenticated %}
+                    <form method="post" action="{% url 'cart_page' %}" style="display:inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="item_id" value="{{ item.id }}">
+                        <button type="submit" name="action" value="add">Add to cart</button>
+                    </form>
+                {% endif %}
+            </li>
+        {% empty %}
+            <li>No items available</li>
+        {% endfor %}
+    </ul>
+
+
+    {% if role == 'admin' or role == 'manager' %}
+        <hr>
+        <h3>Add / Update Item</h3>
+        <form method="post" action="">
+            {% csrf_token %}
+            <input type="text" name="name" placeholder="Name">
+            <input type="number" name="price" step="0.01" placeholder="Price">
+            <button type="submit">Add Item</button>
+        </form>
+    {% endif %}
+</body>
+</html>
