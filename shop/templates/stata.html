@@ -1,46 +1,54 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Orders Statistics</title>
-    <style>
-        table { border-collapse: collapse; width: 100%; }
-        th, td { border: 1px solid #aaa; padding: 8px; text-align: left; }
-        th { background-color: #eee; }
-        ul { margin: 0; padding-left: 20px; }
-    </style>
-</head>
-<body>
-    <h2>Orders Statistics (for managers)</h2>
+{% extends 'base.html' %}
+{% block title %}Orders Statistics{% endblock %}
 
-    {% if orders %}
-        <table>
-            <tr>
-                <th>ID</th>
-                <th>User</th>
-                <th>Items</th>
-                <th>Total</th>
-                <th>Status</th>
-                <th>Date</th>
+{% block content %}
+<h2>Orders Statistics (for managers)</h2>
+
+{% if orders %}
+    <table style="border-collapse: collapse; width: 100%; margin-top: 20px;">
+        <thead>
+            <tr style="background-color: #f2f2f2;">
+                <th style="border: 1px solid #aaa; padding: 8px;">ID</th>
+                <th style="border: 1px solid #aaa; padding: 8px;">User</th>
+                <th style="border: 1px solid #aaa; padding: 8px;">Items</th>
+                <th style="border: 1px solid #aaa; padding: 8px;">Total</th>
+                <th style="border: 1px solid #aaa; padding: 8px;">Status</th>
+                <th style="border: 1px solid #aaa; padding: 8px;">Date</th>
+                <th style="border: 1px solid #aaa; padding: 8px;">Action</th>
             </tr>
+        </thead>
+        <tbody>
             {% for order in orders %}
                 <tr>
-                    <td>{{ order.id }}</td>
-                    <td>{{ order.user.username }}</td>
-                    <td>
-                        <ul>
+                    <td style="border: 1px solid #ddd; padding: 8px;">{{ order.id }}</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">{{ order.user.username }}</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">
+                        <ul style="margin: 0; padding-left: 20px;">
                             {% for item in order.orderitem_set.all %}
                                 <li>{{ item.item.name }} — {{ item.quantity }} × {{ item.price }}$</li>
                             {% endfor %}
                         </ul>
                     </td>
-                    <td>{{ order.total }}$</td>
-                    <td>{{ order.status }}</td>
-                    <td>{{ order.created_at|date:"Y-m-d H:i" }}</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">{{ order.total }}$</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">{{ order.status }}</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">{{ order.created_at|date:"Y-m-d H:i" }}</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">
+                        {% if order.status != "completed" %}
+                            <form method="post" action="{% url 'complete_order' order.id %}">
+                                {% csrf_token %}
+                                <button type="submit" style="background:#28a745;color:white;border:none;padding:5px 10px;border-radius:5px;cursor:pointer;">
+                                    ✅ Complete
+                                </button>
+                            </form>
+                        {% else %}
+                            <span style="color:gray;">✔ Completed</span>
+                        {% endif %}
+                    </td>
                 </tr>
             {% endfor %}
-        </table>
-    {% else %}
-        <p>No orders yet.</p>
-    {% endif %}
-</body>
-</html>
+        </tbody>
+    </table>
+{% else %}
+    <p>No orders yet.</p>
+{% endif %}
+{% endblock %}

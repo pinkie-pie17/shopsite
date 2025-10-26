@@ -1,36 +1,39 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Cart</title>
-</head>
-<body>
-    <h2>Your Cart</h2>
+{% extends 'base.html' %}
+{% block title %}Cart{% endblock %}
 
-    {% if cart_items %}
-        <ul>
-        {% for item in cart_items %}
-            <li>
-                {{ item.item.name }} — {{ item.quantity }}
-                <form method="post" style="display:inline;">
-                    {% csrf_token %}
-                    <input type="hidden" name="item_id" value="{{ item.item.id }}">
-                    <button type="submit" name="action" value="add">+</button>
-                    <button type="submit" name="action" value="remove">-</button>
-                </form>
-            </li>
-        {% endfor %}
-        </ul>
-    {% else %}
-        <p>Your cart is empty.</p>
-    {% endif %}
+{% block content %}
+<h2>Your cart</h2>
 
-    <p><a href="{% url 'items_page' %}">Back to items</a></p>
-    {% if cart_items %}
+{% if cart_items %}
+    <ul>
+    {% for item in cart_items %}
+        <li>
+            <div>
+                <strong>{{ item.item.name }}</strong> — {{ item.quantity }} шт.
+            </div>
+            <form method="post" style="display:inline;">
+                {% csrf_token %}
+                <input type="hidden" name="item_id" value="{{ item.item.id }}">
+                <button type="submit" name="action" value="add">+</button>
+                <button type="submit" name="action" value="remove">−</button>
+            </form>
+        </li>
+    {% endfor %}
+    </ul>
+
+    <div style="margin-top: 20px;">
         <form method="post" action="{% url 'create_order' %}">
             {% csrf_token %}
-            <button type="submit">Create Order</button>
+            <button type="submit">Create order</button>
         </form>
-    {% endif %}
+    </div>
+{% else %}
+    <p>Your cart is empty</p>
+{% endif %}
 
-</body>
-</html>
+<div style="margin-top: 20px;">
+    <a href="{% url 'items_page' %}" style="text-decoration:none;">
+        <button>Back to items</button>
+    </a>
+</div>
+{% endblock %}

@@ -1,8 +1,12 @@
-<!DOCTYPE html>
-<html>
-<head><title>Order Error</title></head>
-<body>
-  <h2>{{ message }}</h2>
-  <a href="{% url 'cart_page' %}">Back to cart</a>
-</body>
-</html>
+{% extends 'base.html' %}
+{% block title %}Order error{% endblock %}
+
+{% block content %}
+<h2 style="color:#d9534f;">{{ message }}</h2>
+
+<div style="margin-top: 20px;">
+    <a href="{% url 'cart_page' %}" style="text-decoration:none;">
+        <button>Back to cart</button>
+    </a>
+</div>
+{% endblock %}

@@ -1,16 +1,30 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from .models import Item, CartItem, Order, OrderItem
+from django.contrib.auth.models import User
+from django.contrib import messages
 
 
 def is_manager(user):
     return user.groups.filter(name='manager').exists() or user.is_superuser
+
+
+def is_manager_or_admin(user):
+    return user.is_staff or user.is_superuser
+
 
 @login_required
 @user_passes_test(is_manager)
 def stata(request):
     orders = Order.objects.all().order_by('-created_at')
     return render(request, 'stata.html', {'orders': orders})
+
+
+def home(request):
+    active_orders = None
+    if request.user.is_authenticated:
+        active_orders = Order.objects.filter(user=request.user).exclude(status='completed')
+    return render(request, 'home.html', {'active_orders': active_orders})
 
 
 def items_page(request):
@@ -26,6 +40,7 @@ def items_page(request):
     return render(request, 'items_page.html', {'items': items, 'role': role})
 
 
+@login_required
 def cart_page(request):
     user = request.user
     cart_items = CartItem.objects.filter(user=user)
@@ -53,6 +68,7 @@ def cart_page(request):
     return render(request, "cart_page.html", {"cart_items": cart_items})
 
 
+@login_required
 def create_order(request):
     user = request.user
     cart_items = CartItem.objects.filter(user=user)
@@ -80,3 +96,31 @@ def create_order(request):
     cart_items.delete()
 
     return render(request, "order_success.html", {"order": order})
+    
+
+@login_required
+@user_passes_test(is_manager_or_admin)
+def complete_order(request, order_id):
+    if request.method == "POST":
+        order = Order.objects.get(id=order_id)
+        order.status = "completed"
+        order.save()
+    return redirect('stata')
+
+
+def register(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+
+        if User.objects.filter(username=username).exists():
+            messages.error(request, 'This username is already taken.')
+            return redirect('register')
+
+        user = User.objects.create_user(username=username, password=password)
+        user.save()
+        messages.success(request, 'Account created successfully! You can now log in.')
+        return redirect('login')
+
+    return render(request, 'register.html')
+

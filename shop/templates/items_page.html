@@ -1,45 +1,44 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Items</title>
-</head>
-<body>
-    <h2>Items List</h2>
+{% extends 'base.html' %}
+{% block title %}Items{% endblock %}
 
-    {% if user.is_authenticated %}
-        <p>Logged in as: {{ user.username }} ({{ role }})</p>
-        <p><a href="/accounts/logout/">Logout</a></p>
-    {% else %}
-        <p>You are not logged in. <a href="/accounts/login/">Login</a></p>
-    {% endif %}
+{% block content %}
+<h2>List of products</h2>
 
-    <ul>
-        {% for item in items %}
-            <li>
-                {{ item.name }} — {{ item.price }}$
-                {% if user.is_authenticated %}
-                    <form method="post" action="{% url 'cart_page' %}" style="display:inline;">
-                        {% csrf_token %}
-                        <input type="hidden" name="item_id" value="{{ item.id }}">
-                        <button type="submit" name="action" value="add">Add to cart</button>
-                    </form>
-                {% endif %}
-            </li>
-        {% empty %}
-            <li>No items available</li>
-        {% endfor %}
-    </ul>
+{% if user.is_authenticated %}
+    <p>You are logged in as <strong>{{ user.username }}</strong> (role: {{ role }})</p>
+{% else %}
+    <p>You are not logged in. <a href="{% url 'login' %}" 
+       style="background:#ffcc00; color:#333; padding:8px 14px; border-radius:6px; 
+              text-decoration:none; font-weight:bold; margin-left:5px;">
+       Log in
+    </a></p>
+{% endif %}
 
+<ul>
+    {% for item in items %}
+        <li>
+            <span>{{ item.name }} — {{ item.price }}$</span>
+            {% if user.is_authenticated %}
+                <form method="post" action="{% url 'cart_page' %}" style="display:inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="item_id" value="{{ item.id }}">
+                    <button type="submit" name="action" value="add">Add to cart</button>
+                </form>
+            {% endif %}
+        </li>
+    {% empty %}
+        <li>No products available</li>
+    {% endfor %}
+</ul>
 
-    {% if role == 'admin' or role == 'manager' %}
-        <hr>
-        <h3>Add / Update Item</h3>
-        <form method="post" action="">
-            {% csrf_token %}
-            <input type="text" name="name" placeholder="Name">
-            <input type="number" name="price" step="0.01" placeholder="Price">
-            <button type="submit">Add Item</button>
-        </form>
-    {% endif %}
-</body>
-</html>
+{% if role == 'admin' or role == 'manager' %}
+    <hr>
+    <h3>Add / Update item</h3>
+    <form method="post" action="">
+        {% csrf_token %}
+        <input type="text" name="name" placeholder="name">
+        <input type="number" name="price" step="0.01" placeholder="price">
+        <button type="submit">Save</button>
+    </form>
+{% endif %}
+{% endblock %}

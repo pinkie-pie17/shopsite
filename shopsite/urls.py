@@ -19,11 +19,14 @@ from django.urls import path, include
 from shop import views
 
 urlpatterns = [
+    path('', views.home, name='home'),
+    path('complete_order/<int:order_id>/', views.complete_order, name='complete_order'),
     path('admin/', admin.site.urls),
     path('accounts/', include('django.contrib.auth.urls')),
     path('stata/', views.stata, name='stata'),
     path('items_page/', views.items_page, name='items_page'),
     path('cart_page/', views.cart_page, name='cart_page'),
     path('create_order/', views.create_order, name='create_order'),
+    path('accounts/register/', views.register, name='register'),
 
 ]
