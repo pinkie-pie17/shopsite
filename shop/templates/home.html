@@ -7,6 +7,15 @@
 
 {% if user.is_authenticated %}
     <p>You are logged in as <strong>{{ user.username }}</strong>.</p>
+        <form method="post" action="{% url 'logout' %}" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit"
+                    style="margin-left: 10px; padding:6px 12px; border-radius:6px; border:none;
+                        background:#e74c3c; color:white; font-weight:bold; cursor:pointer;">
+                Logout
+            </button>
+        </form>
+
 {% else %}
     <div style="margin-top: 20px;">
         <a href="{% url 'login' %}" 

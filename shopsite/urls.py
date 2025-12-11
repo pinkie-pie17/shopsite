@@ -28,5 +28,6 @@ urlpatterns = [
     path('cart_page/', views.cart_page, name='cart_page'),
     path('create_order/', views.create_order, name='create_order'),
     path('accounts/register/', views.register, name='register'),
-
+    path('items/<int:item_id>/delete/', views.delete_item, name='delete_item'),
+    
 ]

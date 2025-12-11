@@ -93,7 +93,6 @@
             {% if user.is_staff %}
                 <a href="{% url 'stata' %}">Statistics</a>
             {% endif %}
-            <a href="{% url 'login' %}">Logout</a>
         {% else %}
             <a href="{% url 'login' %}">Login</a>
         {% endif %}

@@ -17,12 +17,19 @@
 <ul>
     {% for item in items %}
         <li>
-            <span>{{ item.name }} — {{ item.price }}$</span>
+            <span>[{{ item.id }}] {{ item.name }} — {{ item.price }}$</span>
             {% if user.is_authenticated %}
                 <form method="post" action="{% url 'cart_page' %}" style="display:inline;">
                     {% csrf_token %}
                     <input type="hidden" name="item_id" value="{{ item.id }}">
                     <button type="submit" name="action" value="add">Add to cart</button>
+                </form>
+            {% endif %}
+
+            {% if role == 'admin' %}
+                <form action="{% url 'delete_item' item.id %}" method="post" style="display:inline; margin-left: -550px;">
+                    {% csrf_token %}
+                    <button type="submit">Delete</button>
                 </form>
             {% endif %}
         </li>
@@ -34,11 +41,13 @@
 {% if role == 'admin' or role == 'manager' %}
     <hr>
     <h3>Add / Update item</h3>
-    <form method="post" action="">
+    <form method="post" action="{% url 'items_page' %}">
         {% csrf_token %}
+        <input type="number" name="item_id" placeholder="id (for update)">
         <input type="text" name="name" placeholder="name">
         <input type="number" name="price" step="0.01" placeholder="price">
         <button type="submit">Save</button>
     </form>
+
 {% endif %}
 {% endblock %}

@@ -13,6 +13,10 @@ def is_manager_or_admin(user):
     return user.is_staff or user.is_superuser
 
 
+def is_admin(user):
+    return user.is_staff or user.is_superuser
+
+
 @login_required
 @user_passes_test(is_manager)
 def stata(request):
@@ -28,8 +32,8 @@ def home(request):
 
 
 def items_page(request):
-    items = Item.objects.all()
     role = None
+
     if request.user.is_authenticated:
         if request.user.is_superuser:
             role = 'admin'
@@ -37,6 +41,37 @@ def items_page(request):
             role = 'manager'
         else:
             role = 'user'
+
+    if request.method == 'POST' and role in ('admin', 'manager'):
+        item_id = request.POST.get('item_id')
+        name = request.POST.get('name')
+        price = request.POST.get('price')
+
+        if not name or not price:
+            messages.error(request, 'Name and price are required.')
+        else:
+            try:
+                price = float(price)
+            except ValueError:
+                messages.error(request, 'Price must be a number.')
+            else:
+                if item_id:  
+                    try:
+                        item = Item.objects.get(id=item_id)
+                    except Item.DoesNotExist:
+                        messages.error(request, 'Item with this ID does not exist.')
+                    else:
+                        item.name = name
+                        item.price = price
+                        item.save()
+                        messages.success(request, 'Item updated successfully.')
+                else:         
+                    Item.objects.create(name=name, price=price)
+                    messages.success(request, 'Item added successfully.')
+
+                return redirect('items_page')
+
+    items = Item.objects.all()
     return render(request, 'items_page.html', {'items': items, 'role': role})
 
 
@@ -106,6 +141,14 @@ def complete_order(request, order_id):
         order.status = "completed"
         order.save()
     return redirect('stata')
+
+@login_required
+@user_passes_test(is_admin)
+def delete_item(request, item_id):
+    item = get_object_or_404(Item, id=item_id)
+    item.delete()
+    messages.success(request, "item deleted successfully.")
+    return redirect('items_page')
 
 
 def register(request):
